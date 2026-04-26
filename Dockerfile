@@ -54,4 +54,4 @@ EXPOSE 18800 18790
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
   CMD wget -q --spider http://127.0.0.1:18800 || exit 1
 
-ENTRYPOINT ["python", "/opt/t3fap-ai-assistant/runtime/t3fap_assistant_runtime.py"]
+ENTRYPOINT ["python", "-m", "runtime.t3fap_assistant_runtime"]

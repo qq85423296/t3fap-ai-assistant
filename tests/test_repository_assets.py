@@ -33,6 +33,7 @@ class RepositoryAssetsTests(unittest.TestCase):
 
         self.assertIn("picoclaw-launcher", dockerfile)
         self.assertIn("EXPOSE 18800", dockerfile)
+        self.assertIn('ENTRYPOINT ["python", "-m", "runtime.t3fap_assistant_runtime"]', dockerfile)
         self.assertIn('"18800:18800"', compose_ai_only)
         self.assertIn('"18800:18800"', compose_deploy)
 

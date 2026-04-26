@@ -11,6 +11,13 @@ import subprocess
 import sys
 from typing import Mapping, MutableMapping, Sequence
 
+# When this file is launched via an absolute script path inside Docker,
+# Python adds `/opt/t3fap-ai-assistant/runtime` to sys.path instead of the
+# project root. Make sure the top-level `runtime` package stays importable.
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 from runtime.t3mt_automation import (
     DEFAULT_CONFIRM_REDLINE_ACTIONS,
     normalize_automation_mode,
