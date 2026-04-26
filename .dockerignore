@@ -1,0 +1,15 @@
+.git
+.venv
+__pycache__
+*.pyc
+*.pyo
+.pytest_cache
+.mypy_cache
+.ruff_cache
+data
+dist
+build
+*.log
+task_plan.md
+findings.md
+progress.md
