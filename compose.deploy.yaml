@@ -1,62 +1,64 @@
-# T3FAP + T3FAP AI Assistant deployment.
+# T3FAP + T3FAP AI 助手部署配置。
 #
-# Usage:
-#   1. Copy `.env.deploy.example` to `.env`
-#   2. Fill `T3MT_API_KEY` and `OPENAI_API_KEY`
-#   3. Run:
+# 使用方式：
+#   1. 复制 `.env.deploy.example` 为 `.env`
+#   2. 填写 `T3MT_API_KEY` 和 `OPENAI_API_KEY`
+#   3. 启动：
 #      docker compose -f compose.deploy.yaml --env-file .env up -d
 #
-# Network note:
-#   The assistant calls T3FAP through Docker's internal service DNS:
+# 网络说明：
+#   AI 助手和 T3FAP 在同一个 Docker Compose 网络里。
+#   AI 助手通过 Docker 内部服务名访问 T3FAP：
 #   http://t3fap:8521
 #
-# Image note:
-#   If pulling `ghcr.io/qq85423296/t3fap-ai-assistant:latest` fails with
-#   a permission error, set the GitHub Container Package visibility to Public.
+# 镜像说明：
+#   如果拉取 `ghcr.io/qq85423296/t3fap-ai-assistant:latest` 时报权限错误，
+#   需要到 GitHub Packages 里把这个 Container Package 设置为 Public。
 
 services:
-  # Main T3FAP application.
+  # T3FAP 主应用服务。
   t3fap:
     image: ghcr.io/qq85423296/t3fap
     container_name: t3fap
     restart: always
     ports:
-      # Host UI/API port -> container UI/API port.
+      # 宿主机端口:容器端口，用于访问 T3FAP Web 界面和 API。
       - "8521:8521"
     environment:
-      # Keep logs and scheduled tasks aligned with China time.
+      # 容器时区，影响日志时间和定时任务时间。
       TZ: Asia/Shanghai
 
-      # Production runtime settings.
+      # T3FAP 生产环境配置。
       T3MT_ENV: production
       T3MT_LOG_LEVEL: INFO
 
-      # Public URL used by the app when generating links.
-      # Change this to your domain if deploying behind a reverse proxy.
+      # T3FAP 对外访问地址。
+      # 如果后续使用域名或反向代理，把这里改成实际公网地址。
       T3MT_PUBLIC_BASE_URL: http://127.0.0.1:8521
 
-      # SQLite database stored on the mounted ./runtime volume.
+      # SQLite 数据库路径，数据库文件会落在下面挂载的 ./runtime 目录中。
       T3MT_DATABASE_URL: sqlite:////app/storage/runtime/t3mt-next.db
 
-      # Disable QQ bot gateway by default.
+      # 默认关闭 QQBot 网关。
       T3MT_ENABLE_QQBOT_GATEWAY: "0"
     volumes:
-      # Application logs.
+      # 应用日志目录。
       - ./logs:/app/storage/logs
 
-      # Installed plugin/package cache.
+      # 插件包、安装包和运行依赖缓存目录。
       - ./packages:/app/storage/packages
 
-      # Runtime data, including SQLite database.
+      # 运行时数据目录，包括 SQLite 数据库。
       - ./runtime:/app/storage/runtime
 
-      # Backend download output directory.
+      # 后端下载目录。
       - ./downloads:/app/backend/downloads
     security_opt:
-      # Required by the current T3FAP container runtime behavior.
+      # 当前 T3FAP 容器运行需要放开 apparmor 限制。
       - apparmor:unconfined
 
-  # PicoClaw-based sidecar assistant with bundled T3MT skills.
+  # 基于 PicoClaw 的 AI 助手 sidecar 服务。
+  # 这个容器会内置 T3MT/T3FAP 专用 skills，通过 API 帮你自动执行项目操作。
   ai-assistant:
     image: ghcr.io/qq85423296/t3fap-ai-assistant:latest
     container_name: t3fap-ai-assistant
@@ -64,30 +66,41 @@ services:
     depends_on:
       - t3fap
     environment:
-      # Internal Docker service URL for T3FAP.
+      # T3FAP 的 Docker 内网访问地址。
+      # 不要写 127.0.0.1，因为在 ai-assistant 容器里 127.0.0.1 指向它自己。
       T3MT_HOST: http://t3fap:8521
 
-      # API key generated from the T3FAP app. Required.
+      # T3FAP 中生成的接口密钥。必填。
+      # AI 助手会用它调用 T3FAP API。
       T3MT_API_KEY: ${T3MT_API_KEY}
 
-      # Whitelisted operations can run automatically; destructive actions still
-      # require confirmation according to the bundled sidecar automation skill.
+      # 自动化模式。
+      # whitelist 表示白名单内操作自动执行；删除、重置密钥、覆盖配置等危险操作仍需确认。
       T3MT_AUTOMATION_MODE: whitelist
 
-      # Assistant model settings. OPENAI_API_KEY is used as fallback if
-      # T3FAP_ASSISTANT_API_KEY is empty.
+      # AI 助手使用的模型名称。
       T3FAP_ASSISTANT_MODEL_NAME: ${T3FAP_ASSISTANT_MODEL_NAME:-gpt-5.4}
+
+      # PicoClaw/LiteLLM 风格模型标识。
       T3FAP_ASSISTANT_MODEL: ${T3FAP_ASSISTANT_MODEL:-openai/gpt-5.4}
+
+      # 模型 API 密钥。
+      # 如果这里为空，runtime 会回退使用 OPENAI_API_KEY。
       T3FAP_ASSISTANT_API_KEY: ${T3FAP_ASSISTANT_API_KEY:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+
+      # 模型 API 地址。使用 OpenAI 官方接口时保持默认即可。
+      # 如果接入中转、OneAPI、LiteLLM、OpenRouter，可改成对应地址。
       T3FAP_ASSISTANT_API_BASE: ${T3FAP_ASSISTANT_API_BASE:-https://api.openai.com/v1}
 
-      # Optional Pico channel token. Set this if you expose/use PicoClaw's Pico
-      # websocket channel from another client.
+      # 可选：PicoClaw Pico websocket 通道 token。
+      # 如果你要从外部客户端连接 AI 助手网关，建议设置一个随机 token。
       T3FAP_ASSISTANT_PICO_TOKEN: ${T3FAP_ASSISTANT_PICO_TOKEN:-}
     ports:
-      # PicoClaw gateway port.
+      # PicoClaw 网关端口。
+      # 后续如果前台要接入 AI 助手，可通过这个端口连接。
       - "18790:18790"
     volumes:
-      # Assistant config, workspace, sessions, memory, and copied skills.
+      # AI 助手数据目录。
+      # 这里保存 PicoClaw 配置、workspace、sessions、memory 和同步后的 skills。
       - ./assistant-data:/data/picoclaw
