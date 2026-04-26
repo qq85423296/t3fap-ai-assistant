@@ -33,6 +33,13 @@ DEFAULT_GATEWAY_HOST = "0.0.0.0"
 DEFAULT_GATEWAY_PORT = 18790
 DEFAULT_LOG_LEVEL = "info"
 DEFAULT_AUTOMATION_MODE = "full-access"
+ALLOWED_T3MT_EXEC_PATTERNS = [
+    r"\bpython3?\s+(?:\./)?scripts/t3mt-[^ /\n]+\.py\b",
+    r"\bpython3?\s+\.\./t3mt-cli/scripts/t3mt-cli\.py\b",
+    r"\bpython3?\s+\.\./t3mt-[^ /\n]+/scripts/t3mt-[^ /\n]+\.py\b",
+    r"\bpython3?\s+.*skills/t3mt-[^ /\n]+/scripts/t3mt-[^ /\n]+\.py\b",
+    r"\bpython3?\s+.*runtime/t3fap_assistant_runtime\.py\b",
+]
 
 
 class RuntimeConfig:
@@ -247,10 +254,7 @@ def build_picoclaw_config_payload(config: RuntimeConfig) -> dict[str, object]:
                 "enable_deny_patterns": True,
                 "allow_remote": True,
                 "timeout_seconds": 120,
-                "custom_allow_patterns": [
-                    r"\bpython3?\s+.*skills/t3mt-[^ ]+/scripts/t3mt-[^ ]+\.py\b",
-                    r"\bpython3?\s+.*runtime/t3fap_assistant_runtime\.py\b",
-                ],
+                "custom_allow_patterns": ALLOWED_T3MT_EXEC_PATTERNS,
             },
             "skills": {
                 "enabled": True,

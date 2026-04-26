@@ -62,6 +62,9 @@ class AssistantRuntimeTests(unittest.TestCase):
             self.assertEqual(payload["agents"]["defaults"]["workspace"], str(config.workspace_dir))
             self.assertTrue(payload["tools"]["skills"]["enabled"])
             self.assertTrue(payload["tools"]["exec"]["enabled"])
+            patterns = payload["tools"]["exec"]["custom_allow_patterns"]
+            self.assertIn(r"\bpython3?\s+(?:\./)?scripts/t3mt-[^ /\n]+\.py\b", patterns)
+            self.assertIn(r"\bpython3?\s+\.\./t3mt-cli/scripts/t3mt-cli\.py\b", patterns)
             self.assertEqual(payload["channels"]["pico"]["token"], "pico-secret")
             self.assertEqual(payload["model_list"][0]["model_name"], "test-model")
             self.assertEqual(payload["model_list"][0]["api_base"], "https://models.example/v1")
