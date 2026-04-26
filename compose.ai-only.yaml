@@ -1,32 +1,18 @@
-# 单独部署 T3FAP AI 助手。
+# 单独部署 AI 助手。
 #
-# 适用场景：
-#   T3FAP 主程序已经通过其他 compose 文件或其他方式启动，
-#   这里只单独启动 AI 助手 sidecar。
+# 直接启动：
+#   docker compose -f compose.ai-only.yaml up -d
 #
-# 使用方式：
-#   1. 复制 `.env.deploy.example` 为 `.env`
-#   2. 填写 `T3MT_API_KEY` 和 `OPENAI_API_KEY`
-#   3. 确认下面的网络配置和 `T3MT_HOST`
-#   4. 启动：
-#      docker compose -f compose.ai-only.yaml --env-file .env up -d
+# 必填：
+#   - `T3MT_API_KEY`：T3FAP 后台生成的接口密钥
+#   - `OPENAI_API_KEY`：模型密钥
 #
-# 连接 T3FAP 的两种方式：
-#
-#   方式 A：加入 T3FAP 所在 Docker 网络，推荐。
-#     1. 查看 T3FAP 容器所在网络：
-#        docker inspect t3fap --format '{{json .NetworkSettings.Networks}}'
-#     2. 把 `.env` 里的 T3FAP_DOCKER_NETWORK 改成实际网络名。
-#     3. 保持 T3MT_HOST=http://t3fap:8521。
-#
-#   方式 B：通过宿主机端口访问 T3FAP。
-#     1. 保证宿主机的 8521 端口能访问 T3FAP。
-#     2. 把 `.env` 里的 T3MT_HOST 改成：
-#        http://host.docker.internal:8521
-#
-# 注意：
-#   如果 T3FAP 和 AI 助手不在同一个 Docker 网络里，
-#   `http://t3fap:8521` 这个服务名无法解析。
+# 选填：
+#   - `T3MT_HOST`：T3FAP 地址，默认走同网络内的 `http://t3fap:8521`
+#   - `T3FAP_DOCKER_NETWORK`：外部网络名，默认 `t3fap_default`
+#   - `T3FAP_ASSISTANT_MODEL_NAME` / `T3FAP_ASSISTANT_MODEL`
+#   - `T3FAP_ASSISTANT_API_BASE`
+#   - `T3FAP_ASSISTANT_PICO_TOKEN`
 
 services:
   # 基于 PicoClaw 的 T3FAP AI 助手。
@@ -42,32 +28,32 @@ services:
       #   http://t3fap:8521
       # 如果通过宿主机端口访问，使用：
       #   http://host.docker.internal:8521
-      T3MT_HOST: ${T3MT_HOST:-http://t3fap:8521}
+      T3MT_HOST: http://t3fap:8521
 
       # T3FAP 中生成的接口密钥。必填。
-      T3MT_API_KEY: ${T3MT_API_KEY}
+      T3MT_API_KEY: "请改成你在 T3FAP 后台生成的 API Key"
 
       # 自动化模式。
       # whitelist 表示白名单内操作自动执行；删除、重置密钥、覆盖配置等危险操作仍需确认。
       T3MT_AUTOMATION_MODE: whitelist
 
       # AI 助手使用的模型名称。
-      T3FAP_ASSISTANT_MODEL_NAME: ${T3FAP_ASSISTANT_MODEL_NAME:-gpt-5.4}
+      T3FAP_ASSISTANT_MODEL_NAME: gpt-5.4
 
       # PicoClaw/LiteLLM 风格模型标识。
-      T3FAP_ASSISTANT_MODEL: ${T3FAP_ASSISTANT_MODEL:-openai/gpt-5.4}
+      T3FAP_ASSISTANT_MODEL: openai/gpt-5.4
 
       # 模型 API 密钥。
       # 如果 T3FAP_ASSISTANT_API_KEY 为空，runtime 会回退使用 OPENAI_API_KEY。
-      T3FAP_ASSISTANT_API_KEY: ${T3FAP_ASSISTANT_API_KEY:-}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      T3FAP_ASSISTANT_API_KEY: ""
+      OPENAI_API_KEY: "请改成你的 OpenAI API Key"
 
       # 模型 API 地址。
       # 接入中转、OneAPI、LiteLLM、OpenRouter 时改成对应地址。
-      T3FAP_ASSISTANT_API_BASE: ${T3FAP_ASSISTANT_API_BASE:-https://api.openai.com/v1}
+      T3FAP_ASSISTANT_API_BASE: https://api.openai.com/v1
 
       # 可选：PicoClaw Pico websocket 通道 token。
-      T3FAP_ASSISTANT_PICO_TOKEN: ${T3FAP_ASSISTANT_PICO_TOKEN:-}
+      T3FAP_ASSISTANT_PICO_TOKEN: ""
 
     ports:
       # PicoClaw Web 控制台端口。
@@ -91,14 +77,8 @@ services:
       - t3fap-network
 
 networks:
-  # 外部网络：指向 T3FAP 容器所在的 Docker 网络。
-  # 默认值 `t3fap_default` 只是常见 compose 网络名，实际可能不同。
-  # 如果你的 T3FAP compose 项目名不是 t3fap，请用：
-  #   docker network ls
-  # 或：
-  #   docker inspect t3fap --format '{{json .NetworkSettings.Networks}}'
-  # 查实际网络名，然后在 `.env` 设置：
-  #   T3FAP_DOCKER_NETWORK=实际网络名
+  # 这里写 T3FAP 所在的 Docker 网络名。
+  # 如果不是 `t3fap_default`，直接改下面这个值即可。
   t3fap-network:
     external: true
-    name: ${T3FAP_DOCKER_NETWORK:-t3fap_default}
+    name: t3fap_default

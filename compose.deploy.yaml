@@ -1,19 +1,17 @@
-# T3FAP + T3FAP AI 助手部署配置。
+# T3FAP + AI 助手一体部署。
 #
-# 使用方式：
-#   1. 复制 `.env.deploy.example` 为 `.env`
-#   2. 填写 `T3MT_API_KEY` 和 `OPENAI_API_KEY`
-#   3. 启动：
-#      docker compose -f compose.deploy.yaml --env-file .env up -d
+# 直接启动：
+#   docker compose -f compose.deploy.yaml up -d
 #
-# 网络说明：
-#   AI 助手和 T3FAP 在同一个 Docker Compose 网络里。
-#   AI 助手通过 Docker 内部服务名访问 T3FAP：
-#   http://t3fap:8521
+# 必填：
+#   - `T3MT_API_KEY`：T3FAP 后台生成的接口密钥
+#   - `OPENAI_API_KEY`：模型密钥
 #
-# 镜像说明：
-#   如果拉取 `ghcr.io/qq85423296/t3fap-ai-assistant:latest` 时报权限错误，
-#   需要到 GitHub Packages 里把这个 Container Package 设置为 Public。
+# 选填：
+#   - `T3FAP_ASSISTANT_MODEL_NAME`：显示名称
+#   - `T3FAP_ASSISTANT_MODEL`：实际模型标识
+#   - `T3FAP_ASSISTANT_API_BASE`：自定义模型网关地址
+#   - `T3FAP_ASSISTANT_PICO_TOKEN`：Pico websocket token
 
 services:
   # T3FAP 主应用服务。
@@ -72,30 +70,30 @@ services:
 
       # T3FAP 中生成的接口密钥。必填。
       # AI 助手会用它调用 T3FAP API。
-      T3MT_API_KEY: ${T3MT_API_KEY}
+      T3MT_API_KEY: "请改成你在 T3FAP 后台生成的 API Key"
 
       # 自动化模式。
       # whitelist 表示白名单内操作自动执行；删除、重置密钥、覆盖配置等危险操作仍需确认。
       T3MT_AUTOMATION_MODE: whitelist
 
       # AI 助手使用的模型名称。
-      T3FAP_ASSISTANT_MODEL_NAME: ${T3FAP_ASSISTANT_MODEL_NAME:-gpt-5.4}
+      T3FAP_ASSISTANT_MODEL_NAME: gpt-5.4
 
       # PicoClaw/LiteLLM 风格模型标识。
-      T3FAP_ASSISTANT_MODEL: ${T3FAP_ASSISTANT_MODEL:-openai/gpt-5.4}
+      T3FAP_ASSISTANT_MODEL: openai/gpt-5.4
 
       # 模型 API 密钥。
       # 如果这里为空，runtime 会回退使用 OPENAI_API_KEY。
-      T3FAP_ASSISTANT_API_KEY: ${T3FAP_ASSISTANT_API_KEY:-}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      T3FAP_ASSISTANT_API_KEY: ""
+      OPENAI_API_KEY: "请改成你的 OpenAI API Key"
 
       # 模型 API 地址。使用 OpenAI 官方接口时保持默认即可。
       # 如果接入中转、OneAPI、LiteLLM、OpenRouter，可改成对应地址。
-      T3FAP_ASSISTANT_API_BASE: ${T3FAP_ASSISTANT_API_BASE:-https://api.openai.com/v1}
+      T3FAP_ASSISTANT_API_BASE: https://api.openai.com/v1
 
       # 可选：PicoClaw Pico websocket 通道 token。
       # 如果你要从外部客户端连接 AI 助手网关，建议设置一个随机 token。
-      T3FAP_ASSISTANT_PICO_TOKEN: ${T3FAP_ASSISTANT_PICO_TOKEN:-}
+      T3FAP_ASSISTANT_PICO_TOKEN: ""
     ports:
       # PicoClaw Web 控制台端口。
       # 首次部署后，先访问 http://你的服务器IP:18800/launcher-setup 完成初始化。

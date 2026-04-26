@@ -6,7 +6,7 @@ It is designed to run next to the T3FAP app in Docker and operate the app throug
 
 ## What Is Included
 
-- PicoClaw gateway binary, built during the Docker image build.
+- PicoClaw gateway + launcher binary, built during the Docker image build.
 - Runtime bootstrap in `runtime/t3fap_assistant_runtime.py`.
 - Bundled skills:
   - `t3mt-api`
@@ -24,20 +24,20 @@ On container start, the runtime:
 2. Creates `/data/picoclaw/workspace`.
 3. Copies bundled `t3mt-*` skills into the PicoClaw workspace.
 4. Writes a default `AGENT.md` if one does not already exist.
-5. Starts `picoclaw gateway`.
+5. Starts `picoclaw-launcher -console -public -no-browser`.
 
 The assistant uses `T3MT_API_KEY` as `X-API-Key` and never needs direct database access.
 
-## Environment
+## Required Settings
 
-Copy `.env.example` and fill secrets:
+Edit the compose file directly and fill:
 
 ```bash
 T3MT_API_KEY=<key from T3FAP API key UI>
 OPENAI_API_KEY=<model key>
 ```
 
-Useful overrides:
+Optional values you can change in compose:
 
 ```bash
 T3MT_HOST=http://t3fap:8521
@@ -99,10 +99,10 @@ git push -u origin main
 ## Compose Example
 
 ```bash
-docker compose -f compose.example.yaml --env-file .env up --build
+docker compose -f compose.example.yaml up --build
 ```
 
-The compose file exposes PicoClaw gateway on port `18790` and expects the T3FAP service to be reachable as `http://t3fap:8521`.
+The compose file exposes the PicoClaw web console on `18800` and the gateway on `18790`.
 
 ## Automation Policy
 
