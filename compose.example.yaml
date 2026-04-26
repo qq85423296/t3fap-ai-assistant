@@ -27,6 +27,7 @@ services:
       T3FAP_ASSISTANT_API_BASE: ${T3FAP_ASSISTANT_API_BASE:-https://api.openai.com/v1}
       T3FAP_ASSISTANT_PICO_TOKEN: ${T3FAP_ASSISTANT_PICO_TOKEN:-}
     ports:
+      - "18800:18800"
       - "18790:18790"
     volumes:
       - t3fap-ai-assistant-data:/data/picoclaw

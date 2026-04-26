@@ -26,6 +26,16 @@ class RepositoryAssetsTests(unittest.TestCase):
         self.assertIn("T3MT_AUTOMATION_MODE=whitelist", dockerfile)
         self.assertIn("T3MT_AUTOMATION_MODE: whitelist", compose)
 
+    def test_launcher_assets_are_exposed_for_web_console(self) -> None:
+        dockerfile = (REPO_ROOT / "Dockerfile").read_text(encoding="utf-8")
+        compose_ai_only = (REPO_ROOT / "compose.ai-only.yaml").read_text(encoding="utf-8")
+        compose_deploy = (REPO_ROOT / "compose.deploy.yaml").read_text(encoding="utf-8")
+
+        self.assertIn("picoclaw-launcher", dockerfile)
+        self.assertIn("EXPOSE 18800", dockerfile)
+        self.assertIn('"18800:18800"', compose_ai_only)
+        self.assertIn('"18800:18800"', compose_deploy)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -312,7 +312,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(config.config_path)
         return 0
 
-    command = args or ["picoclaw", "gateway"]
+    command = args or ["picoclaw-launcher", "-console", "-public", "-no-browser"]
     if os.name == "posix":
         os.execvpe(command[0], command, child_env)
         return 127

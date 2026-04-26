@@ -70,6 +70,10 @@ services:
       T3FAP_ASSISTANT_PICO_TOKEN: ${T3FAP_ASSISTANT_PICO_TOKEN:-}
 
     ports:
+      # PicoClaw Web 控制台端口。
+      # 首次部署后，先访问 http://你的服务器IP:18800/launcher-setup 完成初始化。
+      - "18800:18800"
+
       # PicoClaw 网关端口。
       - "18790:18790"
 

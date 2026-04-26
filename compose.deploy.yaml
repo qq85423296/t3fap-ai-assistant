@@ -97,8 +97,12 @@ services:
       # 如果你要从外部客户端连接 AI 助手网关，建议设置一个随机 token。
       T3FAP_ASSISTANT_PICO_TOKEN: ${T3FAP_ASSISTANT_PICO_TOKEN:-}
     ports:
+      # PicoClaw Web 控制台端口。
+      # 首次部署后，先访问 http://你的服务器IP:18800/launcher-setup 完成初始化。
+      - "18800:18800"
+
       # PicoClaw 网关端口。
-      # 后续如果前台要接入 AI 助手，可通过这个端口连接。
+      # 后续如果前台要接入 AI 助手，可通过这个 websocket/gateway 端口连接。
       - "18790:18790"
     volumes:
       # AI 助手数据目录。
