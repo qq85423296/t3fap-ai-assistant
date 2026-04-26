@@ -123,6 +123,12 @@ docker compose -f compose.example.yaml up --build
 
 The compose file exposes the PicoClaw web console on `18800` and the gateway on `18790`.
 
+Open the launcher UI directly at `http://<host>:18800/launcher-setup` on first run.
+
+Do not mount the PicoClaw frontend under a URL sub-path such as `/ai`, `/assistant`, or `/picoclaw`.
+It assumes root-based paths like `/assets/...`, `/launcher-setup`, and `/api/...`.
+Use a dedicated port or a dedicated subdomain/root reverse proxy instead.
+
 ## Automation Policy
 
 Whitelisted actions run automatically:

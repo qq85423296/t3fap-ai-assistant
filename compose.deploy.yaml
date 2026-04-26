@@ -87,6 +87,7 @@ services:
       T3FAP_ASSISTANT_PICO_TOKEN: ""
     ports:
       # PicoClaw 前端控制台，部署后访问 http://你的服务器IP:18800/launcher-setup
+      # 建议直接走独立端口或独立子域名，不要挂在 /ai 这类子路径下面
       - "18800:18800"
 
       # Pico 网关端口
