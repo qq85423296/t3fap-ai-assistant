@@ -12,7 +12,7 @@ Translate natural-language management requests into T3MT CLI/API calls.
 1. Identify the target area: plugins, resources, tasks, drives, monitor, settings, media, or auth.
 2. Read current state before mutating.
 3. Prefer `t3mt-cli` aliases for common operations.
-4. Prefer the domain skills `t3mt-plugin-ops`, `t3mt-drive-ops`, `t3mt-resource-ops`, `t3mt-task-ops`, `t3mt-workflow-ops`, `t3mt-monitor-ops`, `t3mt-settings-ops`, and `t3mt-generic-plugin-adapter` when they fit.
+4. Prefer the domain skills `t3mt-plugin-ops`, `t3mt-drive-ops`, `t3mt-resource-ops`, `t3mt-task-ops`, `t3mt-workflow-ops`, `t3mt-monitor-ops`, `t3mt-remediation-ops`, `t3mt-settings-ops`, and `t3mt-generic-plugin-adapter` when they fit.
 5. Use `t3mt-api` or `t3mt-cli api` for endpoints not covered by aliases.
 6. Follow `t3mt-sidecar-automation` for mode and escalation rules.
 
@@ -33,8 +33,10 @@ Translate natural-language management requests into T3MT CLI/API calls.
 | Ensure plugin ready | `python ../t3mt-plugin-ops/scripts/t3mt-plugin-ops.py ensure plugin_id=<PLUGIN_ID>` |
 | Build search->transfer workflow | `python ../t3mt-workflow-ops/scripts/t3mt-workflow-ops.py search-and-transfer keyword=<KEYWORD> search_plugin=search.pansou` |
 | Review recent failures | `python ../t3mt-monitor-ops/scripts/t3mt-monitor-ops.py executions limit=20 status=failed` |
+| Analyze and recover failures | `python ../t3mt-remediation-ops/scripts/t3mt-remediation-ops.py analyze limit=20` |
 | Read template center settings | `python ../t3mt-settings-ops/scripts/t3mt-settings-ops.py task-template-settings` |
 | Adapt an unknown plugin | `python ../t3mt-generic-plugin-adapter/scripts/t3mt-generic-plugin-adapter.py adapt plugin_id=<PLUGIN_ID>` |
+| Build a third-party plugin playbook | `python ../t3mt-generic-plugin-adapter/scripts/t3mt-generic-plugin-adapter.py playbook plugin_id=<PLUGIN_ID>` |
 
 ## Raw API Patterns
 

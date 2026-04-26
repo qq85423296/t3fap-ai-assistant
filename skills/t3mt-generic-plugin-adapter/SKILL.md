@@ -13,6 +13,7 @@ Use this skill when the plugin is not explicitly covered by the domain skills or
 python scripts/t3mt-generic-plugin-adapter.py adapt plugin_id=drive.123pan
 python scripts/t3mt-generic-plugin-adapter.py adapt plugin_id=task.short_video
 python scripts/t3mt-generic-plugin-adapter.py adapt plugin_id=search.live.remote
+python scripts/t3mt-generic-plugin-adapter.py playbook plugin_id=drive.123pan
 ```
 
 ## What it does
@@ -28,6 +29,7 @@ python scripts/t3mt-generic-plugin-adapter.py adapt plugin_id=search.live.remote
   - redline hints
   - suggested CLI commands
   - likely follow-up domain skill
+  - execution playbook for next-step automation
 
 ## Guidance
 

@@ -19,6 +19,7 @@ It is designed to run next to the T3FAP app in Docker and operate the app throug
   - `t3mt-task-ops`
   - `t3mt-workflow-ops`
   - `t3mt-monitor-ops`
+  - `t3mt-remediation-ops`
   - `t3mt-settings-ops`
   - `t3mt-generic-plugin-adapter`
 - Default sidecar API target: `http://t3fap:8521`.
@@ -77,6 +78,7 @@ python C:/Users/Administrator/.codex/skills/.system/skill-creator/scripts/quick_
 python C:/Users/Administrator/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/t3mt-task-ops
 python C:/Users/Administrator/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/t3mt-workflow-ops
 python C:/Users/Administrator/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/t3mt-monitor-ops
+python C:/Users/Administrator/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/t3mt-remediation-ops
 python C:/Users/Administrator/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/t3mt-settings-ops
 python C:/Users/Administrator/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/t3mt-generic-plugin-adapter
 ```
@@ -171,3 +173,8 @@ The first expanded skill pack focuses on plugins, drives, resources, tasks, and 
 ## Phase 3 Skills
 
 - `t3mt-generic-plugin-adapter`: inspect unknown plugins, infer roles and provider types, pull related contracts or templates, and produce an executable adaptation profile.
+
+## Phase 4 Skills
+
+- `t3mt-remediation-ops`: analyze failures, prioritize recovery targets, re-enable unhealthy plugins, and re-run blocked tasks or executions.
+- `t3mt-generic-plugin-adapter` now also emits an execution playbook so unknown third-party plugins can be moved from inspection into concrete next-step automation.

@@ -57,6 +57,7 @@ When `T3MT_AUTOMATION_MODE=full-access`, the assistant may also do these automat
 | Tasks | Create, update, run, toggle, terminate one execution, delete one clearly named task |
 | Resources | Execute resource actions that return task drafts, search navigations, or validation checks |
 | Drive | Create accounts, refresh accounts, set main account, browse files, create folders, save shares |
+| Recovery | Re-enable one plugin, re-run one task, and recover one failed execution after reading current state |
 | Settings | Targeted settings updates with a precise JSON payload |
 | Monitor | Read dashboard, realtime system metrics, schedules, recent executions, and plugin health |
 

@@ -145,6 +145,43 @@ def build_redline_hints(plugin: dict[str, Any], roles: list[str]) -> list[str]:
     return hints
 
 
+def build_playbook(plugin_id: str, roles: list[str], plugin: dict[str, Any]) -> dict[str, Any]:
+    preflight_checks = [
+        f"python ../t3mt-plugin-ops/scripts/t3mt-plugin-ops.py inspect plugin_id={plugin_id}",
+    ]
+    activation_steps = [f"python ../t3mt-plugin-ops/scripts/t3mt-plugin-ops.py ensure plugin_id={plugin_id}"]
+    next_actions: list[str] = []
+
+    if "drive" in roles:
+        preflight_checks.extend(
+            [
+                f"python ../t3mt-drive-ops/scripts/t3mt-drive-ops.py provider plugin_id={plugin_id}",
+                f"python ../t3mt-drive-ops/scripts/t3mt-drive-ops.py account-form plugin_id={plugin_id}",
+            ]
+        )
+        next_actions.append("create or refresh one drive account, then verify file listing")
+    if "task" in roles:
+        preflight_checks.append("python ../t3mt-task-ops/scripts/t3mt-task-ops.py templates")
+        next_actions.append("inspect template contract, then create one focused task draft")
+    if "search" in roles:
+        preflight_checks.append("python ../t3mt-resource-ops/scripts/t3mt-resource-ops.py search-sources")
+        next_actions.append("run a keyword search before attempting downstream task creation")
+    if "catalog" in roles:
+        preflight_checks.append("python ../t3mt-resource-ops/scripts/t3mt-resource-ops.py catalog-sources")
+        next_actions.append("query one catalog page and inspect resource actions before automation")
+    if not next_actions:
+        next_actions.append("inspect config schema and allowed actions before applying targeted config values")
+
+    return {
+        "plugin_id": plugin_id,
+        "plugin_name": plugin.get("name"),
+        "roles": roles,
+        "preflight_checks": preflight_checks,
+        "activation_steps": activation_steps,
+        "next_actions": next_actions,
+    }
+
+
 def adapt_plugin(plugin_id: str) -> dict[str, Any]:
     plugin = run_cli("plugin", f"plugin_id={plugin_id}")
     if not isinstance(plugin, dict):
@@ -172,24 +209,29 @@ def adapt_plugin(plugin_id: str) -> dict[str, Any]:
         profile["catalog_source"] = match_resource_source(plugin_id, run_cli("catalog-sources"))
 
     profile["redline_hints"] = build_redline_hints(plugin, roles)
+    profile["playbook"] = build_playbook(plugin_id, roles, plugin)
     return profile
 
 
 def main() -> None:
     if len(sys.argv) < 2:
-        fail("Usage: t3mt-generic-plugin-adapter.py adapt plugin_id=<PLUGIN_ID>")
+        fail("Usage: t3mt-generic-plugin-adapter.py <adapt|playbook> plugin_id=<PLUGIN_ID>")
 
     command = sys.argv[1]
     args = parse_pairs(sys.argv[2:])
 
-    if command != "adapt":
+    if command not in {"adapt", "playbook"}:
         fail(f"Error: unsupported command '{command}'.")
 
     plugin_id = str(args.get("plugin_id") or "").strip()
     if not plugin_id:
         fail("Error: plugin_id is required.")
 
-    print(json.dumps(adapt_plugin(plugin_id), ensure_ascii=False, indent=2))
+    profile = adapt_plugin(plugin_id)
+    if command == "playbook":
+        print(json.dumps(profile.get("playbook"), ensure_ascii=False, indent=2))
+        return
+    print(json.dumps(profile, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":

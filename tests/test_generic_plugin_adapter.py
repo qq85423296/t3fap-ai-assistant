@@ -40,6 +40,19 @@ class GenericPluginAdapterTests(unittest.TestCase):
         self.assertTrue(any("t3mt-drive-ops" in command and "plugin_id=drive.123pan" in command for command in commands))
         self.assertTrue(any("account-form" in command and "plugin_id=drive.123pan" in command for command in commands))
 
+    def test_build_playbook_for_search_plugin_contains_preflight_and_next_action(self) -> None:
+        adapter = load_adapter_module()
+
+        playbook = adapter.build_playbook(
+            "search.demo",
+            ["search", "resource"],
+            {"name": "Search Demo"},
+        )
+
+        self.assertEqual(playbook["plugin_id"], "search.demo")
+        self.assertTrue(any("search-sources" in command for command in playbook["preflight_checks"]))
+        self.assertTrue(any("keyword search" in action for action in playbook["next_actions"]))
+
 
 if __name__ == "__main__":
     unittest.main()

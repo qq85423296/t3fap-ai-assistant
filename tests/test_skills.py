@@ -18,6 +18,7 @@ class BundledSkillsTests(unittest.TestCase):
             "t3mt-generic-plugin-adapter",
             "t3mt-monitor-ops",
             "t3mt-plugin-ops",
+            "t3mt-remediation-ops",
             "t3mt-resource-ops",
             "t3mt-settings-ops",
             "t3mt-sidecar-automation",
