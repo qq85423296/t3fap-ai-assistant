@@ -1,22 +1,16 @@
-# 单独部署 AI 助手。
-#
-# 直接启动：
-#   docker compose -f compose.ai-only.yaml up -d
-#
+# 单独部署 AI 助手
+# 启动：docker compose -f compose.ai-only.yaml up -d
 # 必填：
-#   - `T3MT_API_KEY`：T3FAP 后台生成的接口密钥
-#   - `OPENAI_API_KEY`：模型密钥
-#
+# - T3MT_API_KEY：T3FAP 后台生成的 API Key
+# - OPENAI_API_KEY：模型 API Key
 # 选填：
-#   - `T3MT_HOST`：T3FAP 地址，默认走同网络内的 `http://t3fap:8521`
-#   - `T3FAP_DOCKER_NETWORK`：外部网络名，默认 `t3fap_default`
-#   - `T3FAP_ASSISTANT_MODEL_NAME` / `T3FAP_ASSISTANT_MODEL`
-#   - `T3FAP_ASSISTANT_API_BASE`
-#   - `T3FAP_ASSISTANT_PICO_TOKEN`
+# - T3MT_HOST：T3FAP 地址，默认走 Docker 内网 http://t3fap:8521
+# - T3FAP_ASSISTANT_MODEL_NAME / T3FAP_ASSISTANT_MODEL：模型显示名和模型标识
+# - T3FAP_ASSISTANT_API_BASE：自定义模型网关地址
+# - T3FAP_ASSISTANT_PICO_TOKEN：外部客户端接 Pico 网关时再填
 
 services:
-  # 基于 PicoClaw 的 T3FAP AI 助手。
-  # 它会内置 T3MT/T3FAP 专用 skills，通过 T3FAP API 自动执行白名单操作。
+  # 基于 PicoClaw 的 T3FAP AI 助手，内置项目专用 skills。
   ai-assistant:
     image: ghcr.io/qq85423296/t3fap-ai-assistant:latest
     container_name: t3fap-ai-assistant
@@ -33,9 +27,12 @@ services:
       # T3FAP 中生成的接口密钥。必填。
       T3MT_API_KEY: "请改成你在 T3FAP 后台生成的 API Key"
 
-      # 自动化模式。
-      # whitelist 表示白名单内操作自动执行；删除、重置密钥、覆盖配置等危险操作仍需确认。
-      T3MT_AUTOMATION_MODE: whitelist
+      # 自动化模式：
+      # full-access = 尽量自动执行，只有红线动作才再次确认
+      T3MT_AUTOMATION_MODE: full-access
+
+      # 红线动作是否二次确认：重置密钥、批量删除、全量覆盖配置等
+      T3MT_CONFIRM_REDLINE_ACTIONS: "true"
 
       # AI 助手使用的模型名称。
       T3FAP_ASSISTANT_MODEL_NAME: gpt-5.4
@@ -52,20 +49,18 @@ services:
       # 接入中转、OneAPI、LiteLLM、OpenRouter 时改成对应地址。
       T3FAP_ASSISTANT_API_BASE: https://api.openai.com/v1
 
-      # 可选：PicoClaw Pico websocket 通道 token。
+      # 可选：Pico websocket token
       T3FAP_ASSISTANT_PICO_TOKEN: ""
 
     ports:
-      # PicoClaw Web 控制台端口。
-      # 首次部署后，先访问 http://你的服务器IP:18800/launcher-setup 完成初始化。
+      # PicoClaw 前端控制台，部署后访问 http://你的服务器IP:18800/launcher-setup
       - "18800:18800"
 
-      # PicoClaw 网关端口。
+      # Pico 网关端口
       - "18790:18790"
 
     volumes:
-      # AI 助手数据目录。
-      # 保存 PicoClaw 配置、workspace、sessions、memory 和同步后的 skills。
+      # AI 助手数据目录
       - ./assistant-data:/data/picoclaw
 
     # Linux 下让容器可以通过 host.docker.internal 访问宿主机。
@@ -77,8 +72,7 @@ services:
       - t3fap-network
 
 networks:
-  # 这里写 T3FAP 所在的 Docker 网络名。
-  # 如果不是 `t3fap_default`，直接改下面这个值即可。
+  # 这里填 T3FAP 所在的 Docker 网络名
   t3fap-network:
     external: true
     name: t3fap_default

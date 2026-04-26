@@ -45,6 +45,73 @@ class T3mtCliTests(unittest.TestCase):
         self.assertEqual(request["query"], {"trace": "true"})
         self.assertEqual(request["body"], {"plugin_id": "search.pansou", "keyword": "test"})
 
+    def test_update_plugin_config_command_wraps_values_object(self) -> None:
+        cli = load_cli_module()
+
+        request = cli.build_command_request(
+            "update-plugin-config",
+            {"plugin_id": "task.transfer", "values_json": '{"default_exclude_keywords":"测试"}'},
+            json_override=None,
+        )
+
+        self.assertEqual(request["method"], "PUT")
+        self.assertEqual(request["path"], "/api/plugins/task.transfer/config")
+        self.assertEqual(request["body"], {"values": {"default_exclude_keywords": "测试"}})
+
+    def test_create_drive_account_command_wraps_payload(self) -> None:
+        cli = load_cli_module()
+
+        request = cli.build_command_request(
+            "create-drive-account",
+            {"plugin_id": "drive.quark", "payload_json": '{"cookie":"abc"}'},
+            json_override=None,
+        )
+
+        self.assertEqual(request["method"], "POST")
+        self.assertEqual(request["path"], "/api/drive/providers/drive.quark/accounts")
+        self.assertEqual(request["body"], {"payload": {"cookie": "abc"}})
+
+    def test_run_resource_action_command_builds_payload_wrapper(self) -> None:
+        cli = load_cli_module()
+
+        request = cli.build_command_request(
+            "run-resource-action",
+            {
+                "resource_id": "search.pansou::demo",
+                "action_key": "task.transfer.create",
+                "payload_json": '{"target_account_id":"1"}',
+            },
+            json_override=None,
+        )
+
+        self.assertEqual(request["method"], "POST")
+        self.assertEqual(
+            request["path"],
+            "/api/resources/search.pansou::demo/actions/task.transfer.create",
+        )
+        self.assertEqual(request["body"], {"payload": {"target_account_id": "1"}})
+
+    def test_monitor_executions_command_keeps_filters(self) -> None:
+        cli = load_cli_module()
+
+        request = cli.build_command_request(
+            "monitor-executions",
+            {"limit": "20", "status": "failed", "trigger_source": "manual"},
+            json_override=None,
+        )
+
+        self.assertEqual(request["method"], "GET")
+        self.assertEqual(request["path"], "/api/monitor/executions")
+        self.assertEqual(request["query"], {"limit": "20", "status": "failed", "trigger_source": "manual"})
+
+    def test_monitor_system_realtime_command_maps_to_endpoint(self) -> None:
+        cli = load_cli_module()
+
+        request = cli.build_command_request("monitor-system-realtime", {}, json_override=None)
+
+        self.assertEqual(request["method"], "GET")
+        self.assertEqual(request["path"], "/api/monitor/system/realtime")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -33,6 +33,7 @@ class AssistantRuntimeTests(unittest.TestCase):
 
         self.assertEqual(config.t3mt_host, "http://t3fap:8521")
         self.assertEqual(config.t3mt_api_key, "")
+        self.assertEqual(config.automation_mode, "full-access")
         self.assertEqual(config.model_name, "gpt-5.4")
         self.assertEqual(config.model, "openai/gpt-5.4")
         self.assertEqual(config.model_api_key, "sk-test")
@@ -91,6 +92,8 @@ class AssistantRuntimeTests(unittest.TestCase):
                 "T3MT_HOST": "http://app:8521",
                 "T3MT_API_KEY": "t3mt-secret",
                 "PICOCLAW_CONFIG": "/tmp/picoclaw-config.json",
+                "T3MT_AUTOMATION_MODE": "full-access",
+                "T3MT_CONFIRM_REDLINE_ACTIONS": "false",
             }
         )
 
@@ -98,10 +101,10 @@ class AssistantRuntimeTests(unittest.TestCase):
 
         self.assertEqual(child_env["T3MT_HOST"], "http://app:8521")
         self.assertEqual(child_env["T3MT_API_KEY"], "t3mt-secret")
-        self.assertEqual(child_env["T3MT_AUTOMATION_MODE"], "whitelist")
+        self.assertEqual(child_env["T3MT_AUTOMATION_MODE"], "full-access")
+        self.assertEqual(child_env["T3MT_CONFIRM_REDLINE_ACTIONS"], "false")
         self.assertEqual(child_env["PICOCLAW_CONFIG"], "/tmp/picoclaw-config.json")
 
 
 if __name__ == "__main__":
     unittest.main()
-

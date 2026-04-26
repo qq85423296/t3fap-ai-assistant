@@ -13,8 +13,16 @@ It is designed to run next to the T3FAP app in Docker and operate the app throug
   - `t3mt-cli`
   - `t3mt-command-dispatch`
   - `t3mt-sidecar-automation`
+  - `t3mt-plugin-ops`
+  - `t3mt-drive-ops`
+  - `t3mt-resource-ops`
+  - `t3mt-task-ops`
+  - `t3mt-workflow-ops`
+  - `t3mt-monitor-ops`
+  - `t3mt-settings-ops`
+  - `t3mt-generic-plugin-adapter`
 - Default sidecar API target: `http://t3fap:8521`.
-- Default automation mode: `whitelist`.
+- Default automation mode: `full-access`.
 
 ## Runtime Behavior
 
@@ -41,7 +49,8 @@ Optional values you can change in compose:
 
 ```bash
 T3MT_HOST=http://t3fap:8521
-T3MT_AUTOMATION_MODE=whitelist
+T3MT_AUTOMATION_MODE=full-access|whitelist|read-only
+T3MT_CONFIRM_REDLINE_ACTIONS=true
 T3FAP_ASSISTANT_MODEL_NAME=gpt-5.4
 T3FAP_ASSISTANT_MODEL=openai/gpt-5.4
 T3FAP_ASSISTANT_API_BASE=https://api.openai.com/v1
@@ -62,6 +71,14 @@ python C:/Users/Administrator/.codex/skills/.system/skill-creator/scripts/quick_
 python C:/Users/Administrator/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/t3mt-cli
 python C:/Users/Administrator/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/t3mt-command-dispatch
 python C:/Users/Administrator/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/t3mt-sidecar-automation
+python C:/Users/Administrator/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/t3mt-plugin-ops
+python C:/Users/Administrator/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/t3mt-drive-ops
+python C:/Users/Administrator/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/t3mt-resource-ops
+python C:/Users/Administrator/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/t3mt-task-ops
+python C:/Users/Administrator/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/t3mt-workflow-ops
+python C:/Users/Administrator/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/t3mt-monitor-ops
+python C:/Users/Administrator/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/t3mt-settings-ops
+python C:/Users/Administrator/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/t3mt-generic-plugin-adapter
 ```
 
 ## Build
@@ -116,6 +133,17 @@ Whitelisted actions run automatically:
 - Run a named task.
 - Query resource catalog/search providers.
 
+`full-access` additionally allows:
+
+- Installing and enabling missing plugins automatically.
+- Updating targeted plugin config values.
+- Creating or updating drive accounts and refreshing them.
+- Creating, updating, toggling, running, and deleting one clearly targeted task.
+- Turning resource actions into task drafts and creating tasks from them.
+- Running built-in workflows such as search -> transfer/download/STRM.
+- Reading monitor dashboard, executions, schedules, plugin health, and realtime system metrics.
+- Updating task template center settings with a precise payload.
+
 The assistant asks before destructive or sensitive actions:
 
 - Delete tasks/resources.
@@ -124,3 +152,22 @@ The assistant asks before destructive or sensitive actions:
 - Overwrite broad settings.
 - Run bulk changes.
 - Execute commands outside the bundled `t3mt-*` tools.
+
+## Phase 1 Skills
+
+The first expanded skill pack focuses on plugins, drives, resources, tasks, and workflows:
+
+- `t3mt-plugin-ops`: inspect, classify, install, enable, disable, and configure plugins.
+- `t3mt-drive-ops`: manage cloud providers, accounts, scan login, files, folders, shares, and download links.
+- `t3mt-resource-ops`: query search/catalog providers, inspect resources, and trigger task-oriented actions.
+- `t3mt-task-ops`: create, update, run, terminate, and subscribe task flows.
+- `t3mt-workflow-ops`: execute high-level flows such as search -> transfer, search -> download, and search -> STRM.
+
+## Phase 2 Skills
+
+- `t3mt-monitor-ops`: inspect dashboard, execution history, schedules, plugin health, and realtime host metrics.
+- `t3mt-settings-ops`: read and update task template center settings with precise JSON payloads.
+
+## Phase 3 Skills
+
+- `t3mt-generic-plugin-adapter`: inspect unknown plugins, infer roles and provider types, pull related contracts or templates, and produce an executable adaptation profile.

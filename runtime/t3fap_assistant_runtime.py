@@ -11,6 +11,11 @@ import subprocess
 import sys
 from typing import Mapping, MutableMapping, Sequence
 
+from runtime.t3mt_automation import (
+    DEFAULT_CONFIRM_REDLINE_ACTIONS,
+    normalize_automation_mode,
+    parse_bool,
+)
 
 DEFAULT_T3MT_HOST = "http://t3fap:8521"
 DEFAULT_MODEL_NAME = "gpt-5.4"
@@ -20,7 +25,7 @@ DEFAULT_PICOCLAW_HOME = Path.home() / ".picoclaw"
 DEFAULT_GATEWAY_HOST = "0.0.0.0"
 DEFAULT_GATEWAY_PORT = 18790
 DEFAULT_LOG_LEVEL = "info"
-DEFAULT_AUTOMATION_MODE = "whitelist"
+DEFAULT_AUTOMATION_MODE = "full-access"
 
 
 class RuntimeConfig:
@@ -41,6 +46,7 @@ class RuntimeConfig:
         gateway_host: str,
         gateway_port: int,
         log_level: str,
+        confirm_redline_actions: bool,
     ) -> None:
         self.picoclaw_home = picoclaw_home
         self.config_path = config_path
@@ -56,6 +62,7 @@ class RuntimeConfig:
         self.gateway_host = gateway_host
         self.gateway_port = gateway_port
         self.log_level = log_level
+        self.confirm_redline_actions = confirm_redline_actions
 
 
 def _clean(value: str | None, default: str = "") -> str:
@@ -100,7 +107,7 @@ def build_runtime_config(env: Mapping[str, str]) -> RuntimeConfig:
         workspace_dir=workspace_dir,
         t3mt_host=_clean(env.get("T3MT_HOST"), DEFAULT_T3MT_HOST).rstrip("/"),
         t3mt_api_key=_clean(env.get("T3MT_API_KEY")),
-        automation_mode=_clean(env.get("T3MT_AUTOMATION_MODE"), DEFAULT_AUTOMATION_MODE),
+        automation_mode=normalize_automation_mode(_clean(env.get("T3MT_AUTOMATION_MODE"), DEFAULT_AUTOMATION_MODE)),
         model_name=model_name,
         model=model,
         model_api_key=model_api_key,
@@ -109,6 +116,10 @@ def build_runtime_config(env: Mapping[str, str]) -> RuntimeConfig:
         gateway_host=_clean(env.get("PICOCLAW_GATEWAY_HOST"), DEFAULT_GATEWAY_HOST),
         gateway_port=_int_from_env(env.get("PICOCLAW_GATEWAY_PORT"), DEFAULT_GATEWAY_PORT),
         log_level=_clean(env.get("PICOCLAW_LOG_LEVEL"), DEFAULT_LOG_LEVEL),
+        confirm_redline_actions=parse_bool(
+            env.get("T3MT_CONFIRM_REDLINE_ACTIONS"),
+            DEFAULT_CONFIRM_REDLINE_ACTIONS,
+        ),
     )
 
 
@@ -137,6 +148,18 @@ def _write_agent_bootstrap(config: RuntimeConfig) -> None:
     agent_file = config.workspace_dir / "AGENT.md"
     if agent_file.exists():
         return
+    automation_line = {
+        "read-only": "- Stay read-only: inspect state and explain what would change, but do not mutate application state.",
+        "full-access": "- Execute most write operations automatically after reading current state first.",
+    }.get(
+        config.automation_mode,
+        "- Execute actions covered by the T3MT whitelist policy automatically.",
+    )
+    redline_line = (
+        "- Ask the operator before redline actions such as API key reset/export, bulk deletion, or broad settings overwrite."
+        if config.confirm_redline_actions
+        else "- Redline confirmations are disabled; still summarize destructive actions clearly before execution."
+    )
     agent_file.write_text(
         "\n".join(
             [
@@ -146,8 +169,8 @@ def _write_agent_bootstrap(config: RuntimeConfig) -> None:
                 f"- Use the T3MT REST API at `{config.t3mt_host}` through the bundled skills.",
                 "- Do not connect to or mutate the application database directly.",
                 "- Read current application state before changing plugins, tasks, resources, drives, or settings.",
-                "- Execute actions covered by the T3MT whitelist policy automatically.",
-                "- Ask the operator before actions outside the whitelist or actions that delete data, reset keys, or overwrite settings.",
+                automation_line,
+                redline_line,
                 "- Never reveal `T3MT_API_KEY` or model API keys in chat output.",
                 "",
             ]
@@ -288,6 +311,7 @@ def build_child_environment(
     child_env["T3MT_HOST"] = config.t3mt_host
     child_env["T3MT_API_KEY"] = config.t3mt_api_key
     child_env["T3MT_AUTOMATION_MODE"] = config.automation_mode
+    child_env["T3MT_CONFIRM_REDLINE_ACTIONS"] = "true" if config.confirm_redline_actions else "false"
     child_env["T3FAP_ASSISTANT_MODEL_NAME"] = config.model_name
     child_env["T3FAP_ASSISTANT_MODEL"] = config.model
     child_env["T3FAP_ASSISTANT_API_BASE"] = config.model_api_base

@@ -23,8 +23,8 @@ class RepositoryAssetsTests(unittest.TestCase):
 
         self.assertIn("T3MT_HOST=http://t3fap:8521", dockerfile)
         self.assertIn("T3MT_HOST: http://t3fap:8521", compose)
-        self.assertIn("T3MT_AUTOMATION_MODE=whitelist", dockerfile)
-        self.assertIn("T3MT_AUTOMATION_MODE: whitelist", compose)
+        self.assertIn("T3MT_AUTOMATION_MODE=full-access", dockerfile)
+        self.assertIn("T3MT_AUTOMATION_MODE: full-access", compose)
 
     def test_launcher_assets_are_exposed_for_web_console(self) -> None:
         dockerfile = (REPO_ROOT / "Dockerfile").read_text(encoding="utf-8")

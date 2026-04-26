@@ -14,7 +14,15 @@ class BundledSkillsTests(unittest.TestCase):
             "t3mt-api",
             "t3mt-cli",
             "t3mt-command-dispatch",
+            "t3mt-drive-ops",
+            "t3mt-generic-plugin-adapter",
+            "t3mt-monitor-ops",
+            "t3mt-plugin-ops",
+            "t3mt-resource-ops",
+            "t3mt-settings-ops",
             "t3mt-sidecar-automation",
+            "t3mt-task-ops",
+            "t3mt-workflow-ops",
         }
 
         actual = {path.name for path in SKILLS_ROOT.glob("t3mt-*") if path.is_dir()}
