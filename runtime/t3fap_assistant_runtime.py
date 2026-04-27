@@ -61,6 +61,7 @@ class RuntimeConfig:
         gateway_port: int,
         log_level: str,
         confirm_redline_actions: bool,
+        force_regenerate_config: bool,
     ) -> None:
         self.picoclaw_home = picoclaw_home
         self.config_path = config_path
@@ -77,6 +78,7 @@ class RuntimeConfig:
         self.gateway_port = gateway_port
         self.log_level = log_level
         self.confirm_redline_actions = confirm_redline_actions
+        self.force_regenerate_config = force_regenerate_config
 
 
 def _clean(value: str | None, default: str = "") -> str:
@@ -133,6 +135,11 @@ def build_runtime_config(env: Mapping[str, str]) -> RuntimeConfig:
         confirm_redline_actions=parse_bool(
             env.get("T3MT_CONFIRM_REDLINE_ACTIONS"),
             DEFAULT_CONFIRM_REDLINE_ACTIONS,
+        ),
+        force_regenerate_config=parse_bool(
+            env.get("T3FAP_ASSISTANT_FORCE_REGENERATE_CONFIG")
+            or env.get("PICOCLAW_FORCE_REGENERATE_CONFIG"),
+            False,
         ),
     )
 
@@ -302,14 +309,15 @@ def prepare_runtime(config: RuntimeConfig, bundled_skills_dir: Path) -> None:
     config.workspace_dir.mkdir(parents=True, exist_ok=True)
     sync_t3mt_skills(bundled_skills_dir, config.workspace_dir / "skills")
     _write_agent_bootstrap(config)
-    config.config_path.write_text(
-        json.dumps(build_picoclaw_config_payload(config), indent=2, ensure_ascii=False) + "\n",
-        encoding="utf-8",
-    )
-    try:
-        config.config_path.chmod(0o600)
-    except OSError:
-        pass
+    if config.force_regenerate_config or not config.config_path.exists():
+        config.config_path.write_text(
+            json.dumps(build_picoclaw_config_payload(config), indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        try:
+            config.config_path.chmod(0o600)
+        except OSError:
+            pass
 
 
 def build_child_environment(

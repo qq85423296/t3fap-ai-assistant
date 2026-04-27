@@ -37,6 +37,7 @@ services:
       T3FAP_ASSISTANT_API_KEY: "这里填新模型 key"
       T3FAP_ASSISTANT_API_BASE: https://api.openai.com/v1
       T3FAP_ASSISTANT_PICO_TOKEN: ""
+      T3FAP_ASSISTANT_FORCE_REGENERATE_CONFIG: "false"
     ports:
       - "18800:18800"
       - "18790:18790"

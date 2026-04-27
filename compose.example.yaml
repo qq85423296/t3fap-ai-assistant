@@ -27,6 +27,7 @@ services:
       OPENAI_API_KEY: "请改成你的 OpenAI API Key"
       T3FAP_ASSISTANT_API_BASE: https://api.openai.com/v1
       T3FAP_ASSISTANT_PICO_TOKEN: ""
+      T3FAP_ASSISTANT_FORCE_REGENERATE_CONFIG: "false"
     ports:
       - "18800:18800"
       - "18790:18790"

@@ -29,11 +29,15 @@ It is designed to run next to the T3FAP app in Docker and operate the app throug
 
 On container start, the runtime:
 
-1. Generates `/data/picoclaw/config.json`.
+1. Generates `/data/picoclaw/config.json` if it does not already exist.
 2. Creates `/data/picoclaw/workspace`.
 3. Copies bundled `t3mt-*` skills into the PicoClaw workspace.
 4. Writes a default `AGENT.md` if one does not already exist.
 5. Starts `picoclaw-launcher -console -public -no-browser`.
+
+Existing PicoClaw config is preserved across container restarts when `/data/picoclaw` is mounted.
+To intentionally rebuild `config.json` from environment variables, set
+`T3FAP_ASSISTANT_FORCE_REGENERATE_CONFIG=true` for one startup.
 
 The assistant uses `T3MT_API_KEY` as `X-API-Key` and never needs direct database access.
 
@@ -56,6 +60,7 @@ T3FAP_ASSISTANT_MODEL_NAME=gpt-5.4
 T3FAP_ASSISTANT_MODEL=openai/gpt-5.4
 T3FAP_ASSISTANT_API_BASE=https://api.openai.com/v1
 T3FAP_ASSISTANT_PICO_TOKEN=<optional pico channel token>
+T3FAP_ASSISTANT_FORCE_REGENERATE_CONFIG=false
 ```
 
 ## Local Verification

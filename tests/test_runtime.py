@@ -108,6 +108,61 @@ class AssistantRuntimeTests(unittest.TestCase):
         self.assertEqual(child_env["T3MT_CONFIRM_REDLINE_ACTIONS"], "false")
         self.assertEqual(child_env["PICOCLAW_CONFIG"], "/tmp/picoclaw-config.json")
 
+    def test_prepare_runtime_preserves_existing_picoclaw_config_by_default(self) -> None:
+        runtime = load_runtime_module()
+        with tempfile.TemporaryDirectory() as raw_dir:
+            home = Path(raw_dir)
+            config = runtime.build_runtime_config(
+                {
+                    "PICOCLAW_HOME": str(home),
+                    "T3MT_HOST": "http://app:8521",
+                    "T3FAP_ASSISTANT_MODEL_NAME": "new-model",
+                    "T3FAP_ASSISTANT_MODEL": "openai/new-model",
+                    "T3FAP_ASSISTANT_API_KEY": "new-secret",
+                }
+            )
+            existing_payload = {
+                "model_list": [{"model_name": "persisted-model", "api_key": "persisted-secret"}],
+                "channels": {"pico": {"token": "persisted-token"}},
+                "custom": {"preserve": True},
+            }
+            config.config_path.parent.mkdir(parents=True, exist_ok=True)
+            config.config_path.write_text(
+                json.dumps(existing_payload, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+            )
+
+            runtime.prepare_runtime(config, bundled_skills_dir=REPO_ROOT / "skills")
+
+            payload = json.loads(config.config_path.read_text(encoding="utf-8"))
+            self.assertEqual(payload, existing_payload)
+
+    def test_prepare_runtime_can_force_regenerate_existing_picoclaw_config(self) -> None:
+        runtime = load_runtime_module()
+        with tempfile.TemporaryDirectory() as raw_dir:
+            home = Path(raw_dir)
+            config = runtime.build_runtime_config(
+                {
+                    "PICOCLAW_HOME": str(home),
+                    "T3MT_HOST": "http://app:8521",
+                    "T3FAP_ASSISTANT_MODEL_NAME": "forced-model",
+                    "T3FAP_ASSISTANT_MODEL": "openai/forced-model",
+                    "T3FAP_ASSISTANT_API_KEY": "forced-secret",
+                    "T3FAP_ASSISTANT_FORCE_REGENERATE_CONFIG": "true",
+                }
+            )
+            config.config_path.parent.mkdir(parents=True, exist_ok=True)
+            config.config_path.write_text(
+                json.dumps({"model_list": [{"model_name": "persisted-model"}]}, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+            )
+
+            runtime.prepare_runtime(config, bundled_skills_dir=REPO_ROOT / "skills")
+
+            payload = json.loads(config.config_path.read_text(encoding="utf-8"))
+            self.assertEqual(payload["model_list"][0]["model_name"], "forced-model")
+            self.assertEqual(payload["model_list"][0]["api_key"], "forced-secret")
+
 
 if __name__ == "__main__":
     unittest.main()
