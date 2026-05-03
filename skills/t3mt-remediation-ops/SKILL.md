@@ -7,6 +7,20 @@ description: Use this skill to analyze recent T3MT/T3FAP failures, propose recov
 
 Use this skill when the user wants the assistant to diagnose failures and move toward recovery instead of only reporting monitor data.
 
+Follow `t3mt-sidecar-automation` for mutation, confirmation, audit, and secret-handling rules.
+
+## Use this skill for
+
+- Turning recent monitor failures into concrete recovery candidates.
+- Re-enabling one unhealthy plugin after current state inspection.
+- Re-running or recovering one task or execution with a clear target.
+
+## Do not use this skill when
+
+- The user only wants a read-only status snapshot. Use `t3mt-monitor-ops`.
+- The user already knows the exact plugin, task, or resource mutation they want. Use the matching domain skill directly.
+- The request is a broad multi-object cleanup or destructive reset. Escalate and confirm first.
+
 ## Common commands
 
 ```bash

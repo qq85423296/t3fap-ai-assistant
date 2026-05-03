@@ -1,11 +1,18 @@
 ---
 name: t3mt-cli
-description: Use this skill to operate a T3MT/T3FAP instance through common Python CLI commands from the assistant sidecar. Covers plugins, resources, tasks, drives, monitor data, settings, and raw API fallback calls.
+description: Use this skill as the default high-frequency operator interface for T3MT/T3FAP from the assistant sidecar. Covers common plugin, resource, task, drive, monitor, and settings actions, with `api` fallback for less common endpoints.
 ---
 
 # T3MT CLI
 
 Use `scripts/t3mt-cli.py` for common T3MT/T3FAP operations.
+
+## Positioning
+
+- Prefer this skill for routine operational work.
+- Prefer domain skills when the request is clearly scoped to plugins, resources, tasks, drives, monitor, remediation, or workflow automation.
+- Use `t3mt-api` when you need exact raw endpoint control or a payload shape that the CLI does not expose well.
+- Follow `t3mt-sidecar-automation` for mutation, confirmation, audit, and secret-handling rules.
 
 ## Setup
 
@@ -69,6 +76,4 @@ python scripts/t3mt-cli.py api PUT /api/settings/task-templates --json '{"common
 
 - Read before writing: inspect current plugins, tasks, drive accounts, and settings before mutating.
 - Use `api` for endpoints not covered by aliases.
-- Execute whitelisted safe actions automatically when `T3MT_AUTOMATION_MODE=whitelist`.
-- Ask before `DELETE`, plugin uninstall, task deletion, API key reset, or full settings overwrite.
 - Never print a real API key in chat output; refer to it as `<T3MT_API_KEY>`.

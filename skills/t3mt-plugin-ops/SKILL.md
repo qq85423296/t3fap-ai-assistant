@@ -15,6 +15,12 @@ Operate plugins through the T3MT/T3FAP API at `http://t3fap:8521`.
 - Enabling or disabling plugins automatically in `full-access` mode.
 - Classifying third-party plugins into drive, task, resource, search, catalog, automation, assistant, parser, download, or media roles.
 
+## Do not use this skill when
+
+- The request is primarily about querying resources or executing resource actions. Use `t3mt-resource-ops`.
+- The request is about task lifecycle, execution, or subscription flows. Use `t3mt-task-ops`.
+- The plugin is unfamiliar and the first need is capability inference and playbook generation. Use `t3mt-generic-plugin-adapter`.
+
 ## Preferred commands
 
 ```bash

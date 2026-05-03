@@ -7,6 +7,8 @@ description: Use this skill to inspect unknown or third-party T3MT/T3FAP plugins
 
 Use this skill when the plugin is not explicitly covered by the domain skills or when you need to understand a third-party plugin before mutating it.
 
+Follow `t3mt-sidecar-automation` for mutation, confirmation, audit, and secret-handling rules.
+
 ## Common commands
 
 ```bash
@@ -25,9 +27,10 @@ python scripts/t3mt-generic-plugin-adapter.py playbook plugin_id=drive.123pan
   - task templates for matching plugin_id
   - matching catalog/search source entry
 - Produces an adaptation profile with:
+  - inferred role
   - supported actions
-  - redline hints
-  - suggested CLI commands
+  - config redlines
+  - exact follow-up command shortlist
   - likely follow-up domain skill
   - execution playbook for next-step automation
 
@@ -36,3 +39,11 @@ python scripts/t3mt-generic-plugin-adapter.py playbook plugin_id=drive.123pan
 - Use this before mutating a third-party plugin you have not seen before.
 - If the plugin exposes task or drive capability, read its provider contract before trying writes.
 - If the plugin looks resource-oriented, inspect matching sources and prefer resource actions over handcrafted payloads.
+- After producing the adaptation profile, hand off to the most specific domain skill instead of staying in generic mode.
+- Structure the final output so another agent can directly continue:
+  - `Role`
+  - `Supported Actions`
+  - `Config Redlines`
+  - `Command Shortlist`
+  - `Next Skill`
+  - `Playbook`

@@ -1,11 +1,21 @@
 ---
 name: t3mt-api
-description: Use this skill when Codex needs to call T3MT/T3FAP REST API endpoints directly from the sidecar assistant with an API key. Covers plugin, resource, task, drive, monitor, media, settings, and account endpoints.
+description: Use this skill when Codex needs raw T3MT/T3FAP REST API access from the sidecar assistant with an API key, especially for endpoints or payloads not cleanly covered by the higher-level CLI and domain skills. Covers plugin, resource, task, drive, monitor, media, settings, and account endpoints.
 ---
 
 # T3MT REST API
 
 Use `scripts/t3mt-api.py` to call T3MT/T3FAP HTTP endpoints from the assistant sidecar.
+
+## Positioning
+
+- Prefer `t3mt-cli` for common day-to-day operations.
+- Prefer domain skills such as `t3mt-plugin-ops`, `t3mt-resource-ops`, `t3mt-task-ops`, and `t3mt-workflow-ops` when they fit.
+- Use `t3mt-api` when:
+  - an endpoint is not exposed cleanly through `t3mt-cli`
+  - a domain skill does not cover the target operation
+  - you need exact HTTP control over method, path, or JSON payload
+- Follow `t3mt-sidecar-automation` for mutation, confirmation, audit, and secret-handling rules.
 
 ## Setup
 
@@ -57,6 +67,5 @@ python scripts/t3mt-api.py POST /api/resources/search/query --json '{"plugin_id"
 ## Operating Rules
 
 - Read current state before mutating plugins, tasks, drives, resources, or settings.
-- Execute whitelisted safe actions automatically when `T3MT_AUTOMATION_MODE=whitelist`.
-- Ask the operator before `DELETE`, API key reset, plugin uninstall, bulk task deletion, or settings overwrite.
+- Prefer raw API calls only when they materially improve precision or coverage over `t3mt-cli`.
 - Never print a real API key in chat output.

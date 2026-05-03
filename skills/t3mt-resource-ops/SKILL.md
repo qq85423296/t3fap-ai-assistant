@@ -7,6 +7,14 @@ description: Use this skill to discover catalog and search providers, query reso
 
 Use this skill for resource discovery across `search.pansou`, `search.360`, and `catalog.*` plugins.
 
+Follow `t3mt-sidecar-automation` for mutation, confirmation, audit, and secret-handling rules.
+
+## Critical session rule
+
+- Keep the query and follow-up action flow in the same running application session whenever possible.
+- Search results and resource-action execution can depend on cached resource identifiers and in-memory runtime context.
+- If you query in one session and execute an action in another, treat stale resource IDs and missing cache as a likely cause.
+
 ## Common commands
 
 ```bash

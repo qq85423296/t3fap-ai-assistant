@@ -1,20 +1,30 @@
 ---
 name: t3mt-command-dispatch
-description: Use this skill when a user asks an AI assistant to operate a T3MT/T3FAP instance in natural language. It maps intent to t3mt-cli commands or raw t3mt-api endpoint calls under the sidecar whitelist policy.
+description: Use this skill when a user asks an AI assistant to operate a T3MT/T3FAP instance in natural language. It acts as the routing layer that maps intent to the best domain skill first, then to `t3mt-cli`, and finally to raw `t3mt-api` calls when needed.
 ---
 
 # T3MT Command Dispatch
 
 Translate natural-language management requests into T3MT CLI/API calls.
 
+Follow `t3mt-sidecar-automation` for mutation, confirmation, audit, and secret-handling rules.
+
 ## Workflow
 
 1. Identify the target area: plugins, resources, tasks, drives, monitor, settings, media, or auth.
 2. Read current state before mutating.
-3. Prefer `t3mt-cli` aliases for common operations.
-4. Prefer the domain skills `t3mt-plugin-ops`, `t3mt-drive-ops`, `t3mt-resource-ops`, `t3mt-task-ops`, `t3mt-workflow-ops`, `t3mt-monitor-ops`, `t3mt-remediation-ops`, `t3mt-settings-ops`, and `t3mt-generic-plugin-adapter` when they fit.
-5. Use `t3mt-api` or `t3mt-cli api` for endpoints not covered by aliases.
-6. Follow `t3mt-sidecar-automation` for mode and escalation rules.
+3. Prefer the best-fitting domain skill:
+   - `t3mt-plugin-ops`
+   - `t3mt-drive-ops`
+   - `t3mt-resource-ops`
+   - `t3mt-task-ops`
+   - `t3mt-workflow-ops`
+   - `t3mt-monitor-ops`
+   - `t3mt-remediation-ops`
+   - `t3mt-settings-ops`
+   - `t3mt-generic-plugin-adapter`
+4. If no domain skill fits cleanly, prefer `t3mt-cli`.
+5. Use `t3mt-api` or `t3mt-cli api` only when CLI/domain coverage is incomplete or the request needs exact raw endpoint control.
 
 ## Intent Map
 
@@ -52,5 +62,4 @@ python scripts/t3mt-cli.py api POST /api/tasks/<TASK_ID>/run --json '{"wait_for_
 - Use the T3MT/T3FAP API at `http://t3fap:8521`; do not connect to the database directly.
 - Do not reveal `T3MT_API_KEY` in chat logs.
 - Treat reset keys as one-time secrets.
-- Ask before `DELETE`, plugin uninstall, task deletion, API key reset, or full settings overwrite.
 - If a command returns 401, report that the key may be missing, reset, or copied incorrectly.
